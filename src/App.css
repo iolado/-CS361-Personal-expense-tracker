@@ -158,3 +158,18 @@ select:focus-visible {
     justify-content: space-between;
   }
 }
+
+.undo-button {
+  background-color: #166534;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin-top: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.undo-button:hover {
+  background-color: #14532d;
+}

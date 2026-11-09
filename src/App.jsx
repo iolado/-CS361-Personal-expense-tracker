@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import "./App.css";
 
@@ -12,11 +11,10 @@ const categories = [
 ];
 
 function App() {
+  const [lastDeleted, setLastDeleted] = useState(null);
   const [expenses, setExpenses] = useState(() => {
     try {
-      const saved = JSON.parse(
-        localStorage.getItem("expenses") || "[]"
-      );
+      const saved = JSON.parse(localStorage.getItem("expenses") || "[]");
       return Array.isArray(saved) ? saved : [];
     } catch {
       return [];
@@ -26,9 +24,7 @@ function App() {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Food");
-  const [date, setDate] = useState(
-    new Date().toLocaleDateString("en-CA")
-  );
+  const [date, setDate] = useState(new Date().toLocaleDateString("en-CA"));
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -53,9 +49,7 @@ function App() {
       numericAmount <= 0 ||
       !date
     ) {
-      setError(
-        "Enter a description, positive amount, and valid date."
-      );
+      setError("Enter a description, positive amount, and valid date.");
       setMessage("");
       return;
     }
@@ -78,10 +72,25 @@ function App() {
   }
 
   function deleteExpense(id) {
-    setExpenses((previous) =>
-      previous.filter((expense) => expense.id !== id)
-    );
-    setMessage("Expense deleted successfully.");
+    const deletedExpense = expenses.find((expense) => expense.id === id);
+
+    if (!deletedExpense) return;
+
+    setLastDeleted(deletedExpense);
+
+    setExpenses((previous) => previous.filter((expense) => expense.id !== id));
+
+    setMessage("Expense deleted. You can undo this action.");
+    setError("");
+  }
+
+  function undoDelete() {
+    if (!lastDeleted) return;
+
+    setExpenses((previous) => [lastDeleted, ...previous]);
+
+    setLastDeleted(null);
+    setMessage("Expense restored successfully.");
     setError("");
   }
 
@@ -173,9 +182,19 @@ function App() {
         )}
 
         {message && (
-          <p role="status" className="success">
-            {message}
-          </p>
+          <div role="status" className="success">
+            <p>{message}</p>
+
+            {lastDeleted && (
+              <button
+                type="button"
+                className="undo-button"
+                onClick={undoDelete}
+              >
+                Undo Delete
+              </button>
+            )}
+          </div>
         )}
       </section>
 
